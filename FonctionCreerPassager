@@ -1,0 +1,217 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define Taille_De_Quai 5
+#define Taille_DUne_Chaine 30
+
+//défenire les tableau
+typedef char chaine[Taille_DUne_Chaine];
+
+   typedef struct passager_t *passagers_t;
+   typedef struct passager_t{
+    int id;
+    chaine destination;
+    passagers_t suivant;
+    }passager_t;
+
+
+//défenire un train
+typedef struct train{
+    int id;
+    int capaciteMAX;
+    int tauxDeRemplissage;
+    passagers_t listeDesPassagers;
+    chaine destination;
+    int kmRestant;
+    int vitesse;
+}train_t;
+
+typedef train_t listeTrain_t[Taille_De_Quai];
+
+//défenire un quai
+typedef struct quai{
+    int id;
+    listeTrain_t listeTrain;
+    int premierTrain; //sommet de la pile
+    int capacite;
+}quai_t;
+
+
+passagers_t CreerPassager(int id, chaine dest){
+    passagers_t p = (passagers_t) malloc(sizeof(passagers_t));
+    if(p == NULL){
+        printf("Error d'allocation, on ne peut pas creer un passager maintenemt.\n");
+        return p;
+    }
+    p->id=id;
+    strcpy(p->destination, dest);
+    p->suivant = NULL;
+    return p;
+}
+
+int SiListeVide(passagers_t ListePassager){
+   if(ListePassager==NULL)
+   {
+       return 1 ;   //la list est vide
+   }
+   return 0;
+}
+
+passagers_t AvoirDernierElementList(passagers_t ListePassager){
+    passagers_t P=ListePassager;
+    if (SiListeVide(ListePassager)==0)
+    {
+        while (P->suivant!=NULL)
+        {
+            P=P->suivant ;
+        }
+    }
+    return P ;
+}
+
+passagers_t ReservationPlace(passagers_t ListePassagers, train_t *Trains, int NumTrain, chaine Destination){
+
+   //nous supposons que la destination n'existe pas
+   int SiDestinationTrouvee=0;
+   passagers_t DernierElmnt;
+
+//Vérifier si la destination est disponible
+   for (int i=0;i<NumTrain;i++){
+      if (!(SiDestinationTrouvee)&&(strcmp(Trains[i].destination,Destination)==0)){
+            SiDestinationTrouvee=1;
+         }
+   }
+
+
+   if(SiDestinationTrouvee){
+      if(ListePassagers==NULL){
+         ListePassagers=CreerPassager(0,Destination);
+         return ListePassagers;
+      }
+    DernierElmnt=AvoirDernierElementList(ListePassagers);
+    DernierElmnt->suivant=CreerPassager(DernierElmnt->id+1,Destination);
+   }
+   else
+      printf("La destination %s n'est pas disponible dans notre gare\n",Destination);
+
+   return ListePassagers;
+}
+
+int ExistIdDansListe(int IDRecherche,passagers_t ListePassager)
+{
+    passagers_t p=ListePassager;
+
+    while(p!=NULL)
+    {
+        if(p->id==IDRecherche)
+            return 1;
+        p=p->suivant;
+    }
+    return 0;
+}
+
+passagers_t AnnulerReservation(int IDRecherche,passagers_t ListePassager)
+{
+    passagers_t Q , P=ListePassager ;
+    if (!ExistIdDansListe(IDRecherche,ListePassager))
+    {
+        printf("le passager n'existe pas !!");
+    }
+    else{
+    if(P->id=IDRecherche) {return P->suivant;} /* Suppresson au debut*/
+    else {                                     /* suppression au milieu au a la fin */
+        while ((P!=NULL)&&(P->id!=IDRecherche))
+               {
+                   Q=P;
+                   P=P->suivant ;
+               }
+            if(P!=NULL){
+                Q->suivant=P->suivant ;
+                free(P);
+            }
+    }
+    }
+      return ListePassager ;
+}
+
+ int TailleListe(passagers_t ListePassager)
+{ int Nb=0 ;
+   while(ListePassager!=NULL)
+   {
+        Nb=Nb+1 ;
+        ListePassager=ListePassager->suivant ;
+   }
+  return Nb;
+}
+
+passagers_t AjouterPassagerDansLaListe(passagers_t PassagerAAjouter,passagers_t ListeDesPassagers)
+{
+        int taille,i;
+        taille=TailleListe(ListeDesPassagers);
+        passagers_t courant=ListeDesPassagers;
+
+        if(taille==0)
+            ListeDesPassagers=PassagerAAjouter;
+        else{
+                for(i=0;i<taille-1;i++)
+                {
+                  courant=courant->suivant;
+                }
+                courant->suivant=PassagerAAjouter;
+
+        }
+
+        return ListeDesPassagers;
+    }
+
+  passager_t SupprimerPassagerListeAttenteEtLeRetourner(passagers_t *ListePassagers,int iDPassager){
+
+    passager_t PassagerARetourner;
+
+    if ((*ListePassagers)->id==iDPassager){
+        PassagerARetourner=**(ListePassagers);
+        *ListePassagers=(*ListePassagers)->suivant;
+        //printf("cas 0");
+        return PassagerARetourner;
+
+    }
+
+    passagers_t PassagerParent=*ListePassagers;
+    passagers_t PassagerCourant=(*ListePassagers)->suivant;
+
+    while ((!SiListeVide(PassagerCourant))&&(PassagerCourant->id!=iDPassager)){
+        PassagerParent=PassagerCourant;
+        PassagerCourant=PassagerParent->suivant;
+    }
+
+    if(SiListeVide(PassagerCourant)){
+        printf("aucune suppression Faite !!! faite ! ");
+        return;
+    }
+
+    //printf("suppression de passager %d",PassagerCourant->ID);
+    PassagerParent->suivant=PassagerCourant->suivant;
+    PassagerARetourner=*PassagerCourant;
+    free(PassagerCourant);
+
+//printf("je suis dans la suppression taille liste est : %d", TailleListe(*ListePassagers));
+return PassagerARetourner;
+
+}
+void AfficherPassagers(passagers_t ListePassagers){
+
+passagers_t ParcoursPassager=ListePassagers;
+
+if (TailleListe(ParcoursPassager)==0){
+    printf("\n**Aucune reservation faite !\n");
+    return;
+
+}
+printf("\nListe des réservations \n");
+while (ParcoursPassager!=NULL){
+    printf("Le passager avec l'ID %d a reservé la destination %s ! \n",ParcoursPassager->id,ParcoursPassager->destination);
+    ParcoursPassager=ParcoursPassager->suivant;
+}
+
+printf("\n");
+}
