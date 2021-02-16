@@ -52,3 +52,42 @@ typedef struct quai{
       }
       return T ;
     }
+                    /* Fonction t3 l prof*/
+    void AfficherTrains(train_t * Trains, int nbrTrains){
+
+   printf("Il y'a %d trains dans la gare \n\n", nbrTrains);
+for (int i=0;i<nbrTrains;i++){
+
+    // calcul du pourcentage de remplissage
+    float Pourcentage=((float)Trains[i].tauxDeRemplissage/(float)Trains[i].tauxDeRemplissage)*100;
+    if (Trains[i].kmRestant==-1)
+        printf("Train ID= %d est disponible pour %s \n",Trains[i].id, Trains[i].destination);
+    else if (Trains[i].kmRestant==0)
+        printf("Train ID= %d dans le quai, remplis a %.2f %%, en attente de départ vers %s \n",Trains[i].id,Pourcentage, Trains[i].destination);
+    else
+        //printf("Le train avec ID= %d est en voyage vers %s, il lui reste %d Km pour rentrer. \n",Trains[i].identifiant,Trains[i].Destination, Trains[i].kilometreRestant);// premier affichage ... j'ai pas trop aimé :/
+        printf("Train ID %d en Trajet passagers: %d, %.2f %%, ===== reste:%d Km ====> %s\n\n",Trains[i].id,Trains[i].tauxDeRemplissage,Pourcentage,Trains[i].kmRestant,Trains[i].destination);
+
+    }
+   
+}
+    int SiTrainRemplis(train_t TrainCourant)
+    {
+        if(TrainCourant.tauxDeRemplissage==TrainCourant.capaciteMAX) return 1 ;
+        
+        return 0;
+    }
+    
+    void MiseAJourTableauDesTrain(train_t TrainPourDepart,train_t * Trains,int NumTrain){
+
+     for (int i=0;i<NumTrain;i++){
+    if (TrainPourDepart.id==Trains[i].id){
+        Trains[i]=TrainPourDepart;
+        return;}
+     }
+     
+     
+int main()
+{
+
+}
