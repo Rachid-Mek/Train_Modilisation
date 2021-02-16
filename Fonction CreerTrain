@@ -1,0 +1,54 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define Taille_De_Quai 5
+#define Taille_DUne_Chaine 30
+
+//défenire les tableau
+typedef char chaine[Taille_DUne_Chaine];
+
+   typedef struct passager_t *passagers_t;
+   typedef struct passager_t{
+    int id;
+    chaine destination;
+    passagers_t suivant;
+    }passager_t;
+
+
+//défenire un train
+typedef struct train{
+    int id;
+    int capaciteMAX;
+    int tauxDeRemplissage;
+    passagers_t listeDesPassagers;
+    chaine destination;
+    int kmRestant;
+    int vitesse;
+}train_t;
+
+typedef train_t listeTrain_t[Taille_De_Quai];
+
+//défenire un quai
+typedef struct quai{
+    int id;
+    listeTrain_t listeTrain;
+    int premierTrain; //sommet de la pile
+    int capacite;
+}quai_t;
+
+    train_t CreerTrain(int IDTrain, int PlacesSupportees, chaine Destination)
+    {
+        train_t P ;
+        P.id=IDTrain;
+        P.capaciteMAX=PlacesSupportees ;
+        strcpy(P.destination,Destination);
+        return P ;
+    }
+
+    train_t ViderTrain(train_t T)
+    {
+      if (T.kmRestant==0) {
+        T.listeDesPassagers==NULL ;
+      }
+      return T ;
+    }
