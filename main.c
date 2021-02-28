@@ -9,7 +9,7 @@
 #define MaxParkingRails 4
 #define MapSize 8
 
-//défenire les tableau
+
 typedef char chaine[Taille_DUne_Chaine];
 
    typedef struct passager_t *passagers_t;
@@ -20,7 +20,7 @@ typedef char chaine[Taille_DUne_Chaine];
     }passager_t;
 
 
-//défenire un train
+
 typedef struct train{
     int id;
     int capaciteMAX;
@@ -33,73 +33,65 @@ typedef struct train{
 
 typedef train_t listeTrain_t[Taille_De_Quai];
 
-//défenire un quai
+
 typedef struct quai{
     int id;
     listeTrain_t listeTrain;
-    int premierTrain; //sommet de la pile
+    int premierTrain;
     int capacite;
 }quai_t;
 
 passagers_t CreerPassager(int id, chaine dest){
-    passagers_t p = (passagers_t) malloc(sizeof(passagers_t));
-    if(p == NULL){
+    passagers_t p=(passagers_t)malloc(sizeof(passagers_t));
+    if(p==NULL){
         printf("Error d'allocation, on ne peut pas creer un passager maintenemt.\n");
         return p;
     }
     p->id=id;
     strcpy(p->destination, dest);
-    p->suivant = NULL;
+    p->suivant=NULL;
     return p;
 }
 
 int SiListeVide(passagers_t ListePassager){
    if(ListePassager==NULL)
    {
-       return 1 ;   //la list est vide
+       return 1 ;
    }
    return 0;
 }
 
-passagers_t AvoirDernierElementList(passagers_t ListePassager){
-    passagers_t P=ListePassager;
-    if (SiListeVide(ListePassager)==0)
-    {
-        while (P->suivant!=NULL)
-        {
-            P=P->suivant ;
-        }
-    }
-    return P ;
+passagers_t AvoirDernierElementList(passagers_t ListePassager)
+{
+    while(ListePassager->suivant!=NULL)
+        ListePassager=ListePassager->suivant;
+
+    return ListePassager;
 }
 
-passagers_t ReservationPlace(passagers_t ListePassagers, train_t *Trains, int NumTrain, chaine Destination){
-
-   //nous supposons que la destination n'existe pas
-   int SiDestinationTrouvee=0;
-   passagers_t DernierElmnt;
-
-//Vérifier si la destination est disponible
-   for (int i=0;i<NumTrain;i++){
-      if (!(SiDestinationTrouvee)&&
-         (strcmp(Trains[i].destination,Destination)==0)){
-            SiDestinationTrouvee=1;
-         }
-   }
-
-
-   if(SiDestinationTrouvee){
-      if(ListePassagers==NULL){
-         ListePassagers=CreerPassager(0,Destination);
-         return ListePassagers;
-      }
-    DernierElmnt=AvoirDernierElementList(ListePassagers);
-    DernierElmnt->suivant=CreerPassager(DernierElmnt->id+1,Destination);
-   }
-   else
-      printf("La destination %s n'est pas disponible dans notre gare\n",Destination);
-
-   return ListePassagers;
+passagers_t ReservationPlace(passagers_t ListePassagers, train_t * Trains, int NumTrain, chaine Destination)
+{
+	int SiDestinationTrouvee=0,i;
+	for (i=0;i<NumTrain;i++)
+	{
+    	if ((SiDestinationTrouvee==0)&&(strcmp(Trains[i].destination,Destination)==0))
+        {
+			SiDestinationTrouvee=1;
+        }
+	}
+	if(SiDestinationTrouvee)
+	{
+    	if(ListePassagers==NULL)
+		{
+        	ListePassagers=CreerPassager(0,Destination);
+        	return ListePassagers;
+    	}
+		passagers_t DernierElmnt=AvoirDernierElementList(ListePassagers);
+    	DernierElmnt->suivant=CreerPassager(DernierElmnt->id+1,Destination);
+	}
+	else
+    printf("La destination %s n'est pas disponible dans notre gare\n",Destination);
+return ListePassagers;
 }
 
 int ExistIdDansListe(int IDRecherche,passagers_t ListePassager)
@@ -133,10 +125,10 @@ passagers_t AnnulerReservation(int IDRecherche,passagers_t ListePassager)
             return ListePassager;
         }
     else {
-              courant=ListePassager ;
-              parent=ListePassager->suivant ;
+              courant=ListePassager->suivant;
+              parent=ListePassager;
 
-        while ((courant!=NULL)&&(courant->id!=IDRecherche))
+        while (!SiListeVide(courant)&&(courant->id!=IDRecherche))
                {
                    parent=courant;
                    courant=courant->suivant ;
@@ -170,7 +162,7 @@ passagers_t AjouterPassagerDansLaListe(passager_t PassagerAAjouter,passagers_t L
         if(taille==0)
             ListeDesPassagers=&PassagerAAjouter;
         else{
-                for(i=0;i<taille-1;i++)
+                for(i=0;i<(taille-1);i++)
                 {
                   courant=courant->suivant;
                 }
@@ -188,7 +180,6 @@ passager_t SupprimerPassagerListeAttenteEtLeRetourner(passagers_t *ListePassager
     if ((*ListePassagers)->id==iDPassager){
         PassagerARetourner=**(ListePassagers);
         *ListePassagers=(*ListePassagers)->suivant;
-        //printf("cas 0");
         return PassagerARetourner;
 
     }
@@ -206,12 +197,10 @@ passager_t SupprimerPassagerListeAttenteEtLeRetourner(passagers_t *ListePassager
         return;
     }
 
-    //printf("suppression de passager %d",PassagerCourant->ID);
     PassagerParent->suivant=PassagerCourant->suivant;
     PassagerARetourner=*PassagerCourant;
     free(PassagerCourant);
 
-//printf("je suis dans la suppression taille liste est : %d", TailleListe(*ListePassagers));
 return PassagerARetourner;
 
 }
@@ -382,15 +371,13 @@ for (int i=0;i<NumParkingRail;i++){
    printf("Il y'a %d trains dans la gare \n\n", nbrTrains);
 for (int i=0;i<nbrTrains;i++){
 
-    // calcul du pourcentage de remplissage
     float Pourcentage=((float)Trains[i].tauxDeRemplissage/(float)Trains[i].capaciteMAX)*100;
     if (Trains[i].kmRestant==-1)
         printf("Train ID= %d est disponible pour %s \n",Trains[i].id, Trains[i].destination);
     else if (Trains[i].kmRestant==0)
         printf("Train ID= %d dans le quai, remplis a %.2f %%, en attente de départ vers %s \n",Trains[i].id,Pourcentage, Trains[i].destination);
     else
-        //printf("Le train avec ID= %d est en voyage vers %s, il lui reste %d Km pour rentrer. \n",Trains[i].identifiant,Trains[i].Destination, Trains[i].kilometreRestant);// premier affichage ... j'ai pas trop aimé :/
-        printf("Train ID %d en Trajet passagers: %d, %.2f %%, ===== reste:%d Km ====> %s\n\n",Trains[i].id,Trains[i].tauxDeRemplissage,Pourcentage,Trains[i].kmRestant,Trains[i].destination);
+        printf("Train ID= %d en Trajet passagers: %d, %.2f %%, ===== reste:%d Km ====> %s\n\n",Trains[i].id,Trains[i].tauxDeRemplissage,Pourcentage,Trains[i].kmRestant,Trains[i].destination);
 
     }
 
@@ -430,16 +417,16 @@ for (int i=0;i<nbrTrains;i++){
     passager_t PassagerTmp;
     passagers_t ParcourirPassager;
 
+
     printf("Liste Des Prochains Departs\n");
     for (int i=0;i<NumQuaie;i++)
     {
         TrainPourDepart=Depiler(&Quaies[i]);
-        if(TrainPourDepart.id==-1) //
+        if(TrainPourDepart.id==-1)
             printf("Le quai %d est vide \n",Quaies[i].id);
         else{
         printf("Prochain train,ID=%d, a destination de %s dans le quai %d\n",TrainPourDepart.id,TrainPourDepart.destination,Quaies[i].id);
 
-            //RécupérerLaDistance
             for(int i=0;i<(NumDestination+1);i++){
                 if(strcmp(TrainPourDepart.destination,Destinations[i][0])==0){
                     TrainPourDepart.kmRestant=atoi(Destinations[i][1]);
@@ -450,12 +437,9 @@ for (int i=0;i<nbrTrains;i++){
 
             ParcourirPassager=PassagerPretPourEmbarquement;
             while(ParcourirPassager!=NULL){
-                if((strcmp(ParcourirPassager->destination,TrainPourDepart.destination)==0)&&(!SiTrainRemplis(TrainPourDepart))){
-
-                    //Enlever de la liste des passager en attente et le mettre dans la liste des passagers dans le train
+                if((strcmp(ParcourirPassager->destination,TrainPourDepart.destination)==0)&&(!SiTrainRemplis(TrainPourDepart)))
+                {
                     PassagerTmp=SupprimerPassagerListeAttenteEtLeRetourner(&PassagerPretPourEmbarquement,ParcourirPassager->id);
-
-                    //Le mettre dans le train
 
                     TrainPourDepart.listeDesPassagers=AjouterPassagerDansLaListe(PassagerTmp,TrainPourDepart.listeDesPassagers);
                     TrainPourDepart.tauxDeRemplissage=TrainPourDepart.tauxDeRemplissage+1;
@@ -534,16 +518,16 @@ int main()
         NumQuai=AjouterQuais(Quais,NumQuai,2,1,Trains, NumTrain);
         NumQuai=AjouterQuais(Quais,NumQuai,3,1,Trains,NumTrain);
 
-//Commencer la simulation
+
 
     while(1)
-        {// nous pouvons remplacer le 1 par un nombre d’itération bienprécis !
-    AfficherParkingRail(Quais,NumQuai); // afficher l’état des quais pourvoir ou se trouve les train.
+        {
+    AfficherParkingRail(Quais,NumQuai);
     NbrHeur++;
 
     printf("************Heure %d***********\n\n",NbrHeur);
 
-    srand(time(NULL));// appeler la fonction random pour générer des nombres aléatoire de réservations et d’annulations
+    srand(time(NULL));
 
     int NombreAleatoireDeReservations=rand()%10+5;
     int NombreAleatoireDAnulations=rand()%5;
@@ -567,6 +551,10 @@ int main()
     printf("\n Nombre de passagers en attente:\t%d\n",TailleListe(ListeDesPassagerEnAttente));
 
     AfficherPassagers(ListeDesPassagerEnAttente);
+
+    ListeDesPassagerEnAttente=Embarquement(Quais, NumQuai,ListeDesPassagerEnAttente, Destinations,NumDestinations, Trains,NumTrain );
+    AfficherTrains(Trains,NumTrain);
+
 
 
     break;
